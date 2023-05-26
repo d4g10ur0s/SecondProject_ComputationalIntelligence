@@ -137,7 +137,7 @@ def main():
             newFitness = 0
             #3.4.2
             lastBestVectors = []
-            broken = []
+            broken = 1000
             for g in range(1000):
                 #3.1 Select the next generation individuals
                 parents = toolbox.select(population,int(len(population)/2))
@@ -175,6 +175,7 @@ def main():
                         if abs(newFitness-lfitness)<0.01e-5:#num is in [0,1] --> 1/100 --> 0.01 => 0.01/100 --> 0.01e-2
                             countMe2+=1
                     if countMe==10 or countMe2==10:
+                        #broken.append(g)
                         broken=g
                         break
                     else:
@@ -186,8 +187,8 @@ def main():
             # stop
             #4. return best individual
             top = tools.selBest(population, k=1)[0]
-            #print("The best individual is: " + str(top[0][0]))
-            #print("Lasted at : " + str(broken) )
+            print("The best individual is: " + str(top[0][0]))
+            print("Lasted at : " + str(broken) )
             theTops.append(evaluate(toolbox.clone(top))[0])# best fitness for mean value
             theBrakes.append(broken)# termatismos algori8mou
         # stop
