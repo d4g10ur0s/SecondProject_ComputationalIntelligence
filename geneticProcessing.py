@@ -75,7 +75,7 @@ def main():
         stances[i] = data.iloc[:][data["class"]==i].drop(columns=["Unnamed: 0","class"],inplace=False).mean()
 
 
-
+    candidateVectors = []
     theMeans = []
     breakMeans = []
     peiramata = [
@@ -104,7 +104,7 @@ def main():
                                    toolbox.vector,
                                    n=1)
     toolbox.register("evaluate", evaluate)
-    for peirama,pnum in zip(peiramata,range(1,10)):# gia na sumplhrwsw ka8e grammh pinaka
+    for peirama,pnum in zip(peiramata,range(1,11)):# gia na sumplhrwsw ka8e grammh pinaka
         #2.4 create population
         toolbox.register("population", tools.initRepeat, list, toolbox.individual)
         population = toolbox.population(n=peirama[0])
@@ -188,6 +188,7 @@ def main():
             # stop
             #4. return best individual
             top = tools.selBest(population, k=1)[0]
+            candidateVectors.append(top[0][0])
             #print("The best individual is: " + str(top[0][0]))
             print("Lasted at : " + str(broken) )
             theTops.append(evaluate(toolbox.clone(top))[0])# best fitness for mean value
@@ -196,12 +197,12 @@ def main():
         theMeans.append(pd.DataFrame(data=theTops).mean())
         breakMeans.append(pd.DataFrame(data=theBrakes).mean())
         # create and store graph
-        plt.scatter(theBrakes,theTops)
+        plt.plot(range(10),pd.DataFrame(data=theTops)/pd.DataFrame(data=theBrakes))
         #plt.plot(theTops,theBrakes)
         plt.title(str(peirama))
         print("To save : " + str(pnum))
         #plt.show()
-        plt.savefig("F:\\5oEtos\\EarinoEksamhno\\YpologistikhNohmosunh\\Project_B\\Graphs\\"+"Experiment_"+str(pnum)+".png")
+        plt.savefig("F:\\5oEtos\\EarinoEksamhno\\YpologistikhNohmosunh\\Project_B\\Graphs\\"+"Experiment_Plot"+str(pnum)+".png")
         plt.clf()
     print("Fitness Mean : " + str(theMeans))
     print("Algorithm End : " + str(breakMeans))
@@ -213,6 +214,8 @@ def main():
     #plt.show()
     plt.savefig("F:\\5oEtos\\EarinoEksamhno\\YpologistikhNohmosunh\\Project_B\\Graphs\\theMeans.png")
     plt.clf()
+    pd.DataFrame(data=candidateVectors).to_csv(path_or_buf="F:\\5oEtos\\EarinoEksamhno\\YpologistikhNohmosunh\\Project_B\\generatedVectors.csv", sep=';')
+
 
 if __name__ == "__main__":
     main()
