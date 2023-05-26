@@ -7,6 +7,7 @@ from deap import base
 from deap import creator
 from deap import tools
 
+import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
@@ -103,7 +104,7 @@ def main():
                                    toolbox.vector,
                                    n=1)
     toolbox.register("evaluate", evaluate)
-    for peirama in peiramata:# gia na sumplhrwsw ka8e grammh pinaka
+    for peirama,pnum in zip(peiramata,range(1,10)):# gia na sumplhrwsw ka8e grammh pinaka
         #2.4 create population
         toolbox.register("population", tools.initRepeat, list, toolbox.individual)
         population = toolbox.population(n=peirama[0])
@@ -172,7 +173,7 @@ def main():
                     for vec,lfitness in zip(lastBestVectors,lastFitness):
                         if myCosineSimilarity(newBest[0][0],vec)==0:
                             countMe+=1
-                        if abs(newFitness-lfitness)<0.01e-5:#num is in [0,1] --> 1/100 --> 0.01 => 0.01/100 --> 0.01e-2
+                        if abs(newFitness-lfitness)<0.01e-4:#num is in [0,1] --> 1/100 --> 0.01 => 0.01/100 --> 0.01e-2
                             countMe2+=1
                     if countMe==10 or countMe2==10:
                         #broken.append(g)
@@ -187,16 +188,31 @@ def main():
             # stop
             #4. return best individual
             top = tools.selBest(population, k=1)[0]
-            print("The best individual is: " + str(top[0][0]))
+            #print("The best individual is: " + str(top[0][0]))
             print("Lasted at : " + str(broken) )
             theTops.append(evaluate(toolbox.clone(top))[0])# best fitness for mean value
             theBrakes.append(broken)# termatismos algori8mou
         # stop
         theMeans.append(pd.DataFrame(data=theTops).mean())
         breakMeans.append(pd.DataFrame(data=theBrakes).mean())
+        # create and store graph
+        plt.scatter(theBrakes,theTops)
+        #plt.plot(theTops,theBrakes)
+        plt.title(str(peirama))
+        print("To save : " + str(pnum))
+        #plt.show()
+        plt.savefig("F:\\5oEtos\\EarinoEksamhno\\YpologistikhNohmosunh\\Project_B\\Graphs\\"+"Experiment_"+str(pnum)+".png")
+        plt.clf()
     print("Fitness Mean : " + str(theMeans))
     print("Algorithm End : " + str(breakMeans))
-
+    # create and store graph
+    plt.plot(breakMeans,theMeans)
+    #plt.plot(theTops,theBrakes)
+    plt.title("The Means")
+    print("To save : " + str(pnum))
+    #plt.show()
+    plt.savefig("F:\\5oEtos\\EarinoEksamhno\\YpologistikhNohmosunh\\Project_B\\Graphs\\theMeans.png")
+    plt.clf()
 
 if __name__ == "__main__":
     main()
