@@ -19,7 +19,6 @@ global stances#means of stances
 global myConstant#c constant
 global vectorData#the data
 global experimentPopulation
-experimentPopulation = 10
 
 def arrayComp(arr1,arrs):
     for i in arrs :
@@ -40,7 +39,7 @@ def myCosineSimilarity(v , t):
 def evaluate(individual):
     global stances
     global myConstant
-    myConstant = 0.25
+    myConstant = 0.2
     # Do some hard computing on the individual
     a = myCosineSimilarity(individual[0][0],stances[1].tolist())
     b=0
@@ -104,23 +103,16 @@ def main():
                                    toolbox.vector,
                                    n=1)
     toolbox.register("evaluate", evaluate)
+    #2.4 create population
+    toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+    #2.5 selection method
+    toolbox.register("select", tools.selRoulette)
+    #2.6 crossover method
+    toolbox.register("crover", tools.cxUniform, indpb=0.25)
+    #2.7 mutation method , best values dont change
+    toolbox.register("elitisism", tools.selBest)
+    toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=1, indpb=0.5)
     for peirama,pnum in zip(peiramata,range(1,11)):# gia na sumplhrwsw ka8e grammh pinaka
-        #2.4 create population
-        toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-        population = toolbox.population(n=peirama[0])
-        #2.5 selection method
-        toolbox.register("select", tools.selRoulette)
-        #2.6 crossover method
-        toolbox.register("crover", tools.cxUniform, indpb=0.25)
-        #2.7 mutation method , best values dont change
-        toolbox.register("elitisism", tools.selBest)
-        toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=1, indpb=0.5)
-        #3. Run Algorithm
-        # evaluate all individuals in the population
-        fitnesses = list(toolbox.map(toolbox.evaluate, population))
-        # assign the evaluated fitnesses to the population
-        for ind, fit in zip(population, fitnesses):
-            ind.fitness.values = fit
         ##################################################
         theTops = []# ta kalutera fitness values se 10 fores
         theBrakes = []# genea termatismou
@@ -130,6 +122,13 @@ def main():
         print("Crossover chance : " + str(crossoverChance))
         print("Mutation chance : " + str(mutationChance))
         for mesos_oros_se_deka_peiramata in range(10):
+            #3. Run Algorithm
+            # evaluate all individuals in the population
+            population = toolbox.population(n=peirama[0])
+            fitnesses = list(toolbox.map(toolbox.evaluate, population))
+            # assign the evaluated fitnesses to the population
+            for ind, fit in zip(population, fitnesses):
+                ind.fitness.values = fit
             '''
             The Genetic Script
             '''
@@ -170,10 +169,10 @@ def main():
                     newBest = tools.selBest(population, k=1)[0]
                     countMe = 0
                     countMe2 = 0
-                    for vec,lfitness in zip(lastBestVectors,lastFitness):
+                    for vec,lfitness in zip(lastBestVectors,lastFitness[len(lastFitness)-10:]):
                         if myCosineSimilarity(newBest[0][0],vec)==0:
                             countMe+=1
-                        if abs(newFitness-lfitness)<0.01e-4:#num is in [0,1] --> 1/100 --> 0.01 => 0.01/100 --> 0.01e-2
+                        if abs(newFitness-lfitness) < 1e-5:
                             countMe2+=1
                     if countMe==10 or countMe2==10:
                         #broken.append(g)
@@ -183,9 +182,13 @@ def main():
                         #this list is like a queue
                         lastBestVectors.pop(0)
                         lastBestVectors.append(newBest[0][0])
-                        lastFitness.pop(0)
+                        #lastFitness.pop(0)
                         lastFitness.append(newFitness)
             # stop
+            #create graph fitness / generation
+            # create and store graph
+            plt.plot(range(len(lastFitness)),lastFitness,label=mesos_oros_se_deka_peiramata)
+            #plt.plot(theTops,theBrakes)
             #4. return best individual
             top = tools.selBest(population, k=1)[0]
             candidateVectors.append(top[0][0])
@@ -194,6 +197,12 @@ def main():
             theTops.append(evaluate(toolbox.clone(top))[0])# best fitness for mean value
             theBrakes.append(broken)# termatismos algori8mou
         # stop
+        plt.title(str(peirama))
+        print("To save : " + str(pnum))
+        #plt.show()
+        plt.legend(loc='upper right')
+        plt.savefig("F:\\5oEtos\\EarinoEksamhno\\YpologistikhNohmosunh\\Project_B\\Graphs\\"+"Fitness_per_Generation"+str(pnum)+".png")
+        plt.clf()
         theMeans.append(pd.DataFrame(data=theTops).mean())
         breakMeans.append(pd.DataFrame(data=theBrakes).mean())
         # create and store graph
@@ -207,13 +216,13 @@ def main():
     print("Fitness Mean : " + str(theMeans))
     print("Algorithm End : " + str(breakMeans))
     # create and store graph
-    plt.plot(breakMeans,theMeans)
+    #plt.plot(breakMeans,theMeans)
     #plt.plot(theTops,theBrakes)
-    plt.title("The Means")
-    print("To save : " + str(pnum))
+    #plt.title("The Means")
+    #print("To save : " + str(pnum))
     #plt.show()
-    plt.savefig("F:\\5oEtos\\EarinoEksamhno\\YpologistikhNohmosunh\\Project_B\\Graphs\\theMeans.png")
-    plt.clf()
+    #plt.savefig("F:\\5oEtos\\EarinoEksamhno\\YpologistikhNohmosunh\\Project_B\\Graphs\\theMeans.png")
+    #plt.clf()
     pd.DataFrame(data=candidateVectors).to_csv(path_or_buf="F:\\5oEtos\\EarinoEksamhno\\YpologistikhNohmosunh\\Project_B\\generatedVectors.csv", sep=';')
 
 
